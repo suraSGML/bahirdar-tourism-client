@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f8fafc; color: #1e293b; }
+  html { scroll-behavior: smooth; }
+  /* Arabic RTL font */
+  :lang(ar) { font-family: 'Noto Sans Arabic', system-ui, sans-serif; }
+  /* Amharic font */
+  :lang(am) { font-family: 'Noto Sans Ethiopic', system-ui, sans-serif; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0;
+  }
+  .btn-secondary {
+    @apply border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200;
+  }
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-card hover:shadow-hover transition-all duration-300;
+  }
+  .input {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200 bg-white;
+  }
+  .badge-green {
+    @apply bg-primary-500 text-white text-xs font-semibold px-3 py-1 rounded-full;
+  }
+  .badge-yellow {
+    @apply bg-amber-500 text-white text-xs font-semibold px-3 py-1 rounded-full;
+  }
+  .badge-red {
+    @apply bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full;
+  }
+  .section-title {
+    @apply text-2xl font-bold text-gray-900 mb-1;
+  }
+  .tab-btn {
+    @apply px-5 py-2.5 rounded-xl border border-primary-500 text-primary-500 font-medium text-sm transition-all duration-200 hover:bg-primary-50;
+  }
+  .tab-btn-active {
+    @apply bg-primary-500 text-white border-primary-500 shadow-md;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #1a6b3c; border-radius: 3px; }
+
+/* Leaflet fix */
+.leaflet-container { z-index: 1; }
