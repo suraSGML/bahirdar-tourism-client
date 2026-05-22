@@ -7,32 +7,33 @@ import { useLang } from '../context/LanguageContext';
 
 export default function Home() {
   const { t } = useLang();
-  const getCached = () => {
+  const getValidCached = () => {
     try {
-      const cached = sessionStorage.getItem('homeData');
-      if (!cached) return null;
-      const parsed = JSON.parse(cached);
-      if (!Array.isArray(parsed?.hotels) || !Array.isArray(parsed?.guides) || !Array.isArray(parsed?.sites) || !Array.isArray(parsed?.transports)) {
-        sessionStorage.removeItem('homeData');
-        return null;
-      }
-      return parsed;
-    } catch (e) { console.warn('Cache read failed', e); }
+      const raw = sessionStorage.getItem('homeData');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (
+        Array.isArray(parsed?.hotels) &&
+        Array.isArray(parsed?.guides) &&
+        Array.isArray(parsed?.sites) &&
+        Array.isArray(parsed?.transports)
+      ) return parsed;
+      sessionStorage.removeItem('homeData');
+    } catch (e) { sessionStorage.removeItem('homeData'); }
     return null;
   };
-  const cached = getCached();
-  const [hotels, setHotels] = useState(Array.isArray(cached?.hotels) ? cached.hotels : []);
-  const [sites, setSites] = useState(Array.isArray(cached?.sites) ? cached.sites : []);
-  const [guides, setGuides] = useState(Array.isArray(cached?.guides) ? cached.guides : []);
-  const [transports, setTransports] = useState(Array.isArray(cached?.transports) ? cached.transports : []);
-  const [stats, setStats] = useState(cached ? { hotels: cached.hotels?.length || 0, guides: cached.guides?.length || 0, sites: cached.sites?.length || 0 } : { hotels: 0, guides: 0, sites: 0 });
-  const [loading, setLoading] = useState(!cached);
+
+  const [hotels, setHotels] = useState(() => getValidCached()?.hotels ?? []);
+  const [sites, setSites] = useState(() => getValidCached()?.sites ?? []);
+  const [guides, setGuides] = useState(() => getValidCached()?.guides ?? []);
+  const [transports, setTransports] = useState(() => getValidCached()?.transports ?? []);
+  const [stats, setStats] = useState(() => { const c = getValidCached(); return c ? { hotels: c.hotels.length, guides: c.guides.length, sites: c.sites.length } : { hotels: 0, guides: 0, sites: 0 }; });
+  const [loading, setLoading] = useState(() => !getValidCached());
 
   useEffect(() => { document.title = "Visit Bahir Dar – Discover Ethiopia's Lake City"; }, []);
 
   useEffect(() => {
-    const hasCached = getCached();
-    if (hasCached) return;
+    if (getValidCached()) return;
     Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
       .then(([h, g, s, tr]) => {
         // Handle both paginated and direct array responses
