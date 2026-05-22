@@ -7,33 +7,16 @@ import { useLang } from '../context/LanguageContext';
 
 export default function Home() {
   const { t } = useLang();
-  const getValidCached = () => {
-    try {
-      const raw = sessionStorage.getItem('homeData');
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (
-        Array.isArray(parsed?.hotels) &&
-        Array.isArray(parsed?.guides) &&
-        Array.isArray(parsed?.sites) &&
-        Array.isArray(parsed?.transports)
-      ) return parsed;
-      sessionStorage.removeItem('homeData');
-    } catch (e) { sessionStorage.removeItem('homeData'); }
-    return null;
-  };
-
-  const [hotels, setHotels] = useState(() => getValidCached()?.hotels ?? []);
-  const [sites, setSites] = useState(() => getValidCached()?.sites ?? []);
-  const [guides, setGuides] = useState(() => getValidCached()?.guides ?? []);
-  const [transports, setTransports] = useState(() => getValidCached()?.transports ?? []);
-  const [stats, setStats] = useState(() => { const c = getValidCached(); return c ? { hotels: c.hotels.length, guides: c.guides.length, sites: c.sites.length } : { hotels: 0, guides: 0, sites: 0 }; });
-  const [loading, setLoading] = useState(() => !getValidCached());
+  const [hotels, setHotels] = useState([]);
+  const [sites, setSites] = useState([]);
+  const [guides, setGuides] = useState([]);
+  const [transports, setTransports] = useState([]);
+  const [stats, setStats] = useState({ hotels: 0, guides: 0, sites: 0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => { document.title = "Visit Bahir Dar – Discover Ethiopia's Lake City"; }, []);
 
   useEffect(() => {
-    if (getValidCached()) return;
     Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
       .then(([h, g, s, tr]) => {
         // Handle both paginated and direct array responses
@@ -44,7 +27,6 @@ export default function Home() {
         
         setStats({ hotels: hotelsData.length, guides: guidesData.length, sites: sitesData.length });
         setHotels(hotelsData); setGuides(guidesData); setSites(sitesData); setTransports(transportsData);
-        sessionStorage.setItem('homeData', JSON.stringify({ hotels: hotelsData, guides: guidesData, sites: sitesData, transports: transportsData }));
       })
       .catch(err => {
         console.error('Failed to load home data:', err);
