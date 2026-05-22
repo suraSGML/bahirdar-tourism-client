@@ -21,9 +21,9 @@ export default function Home() {
       .then(([h, g, s, tr]) => {
         const toArray = (val) => Array.isArray(val) ? val : [];
         const hotelsData = toArray(h.data?.data ?? h.data);
-        const guidesData = toArray(g.data?.data ?? g.data);
-        const sitesData = toArray(s.data?.data ?? s.data);
-        const transportsData = toArray(tr.data?.data ?? tr.data);
+        const guidesData = toArray(g.data);
+        const sitesData = toArray(s.data);
+        const transportsData = toArray(tr.data);
         
         setStats({ hotels: hotelsData.length, guides: guidesData.length, sites: sitesData.length });
         setHotels(hotelsData); setGuides(guidesData); setSites(sitesData); setTransports(transportsData);
