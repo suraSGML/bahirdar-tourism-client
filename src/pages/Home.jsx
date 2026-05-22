@@ -7,24 +7,25 @@ import { useLang } from '../context/LanguageContext';
 
 export default function Home() {
   const { t } = useLang();
-  const [stats, setStats] = useState({ hotels: 0, guides: 0, sites: 0 });
-  const [hotels, setHotels] = useState([]);
-  const [sites, setSites] = useState([]);
-  const [guides, setGuides] = useState([]);
-  const [transports, setTransports] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const getCached = () => {
+    try {
+      const cached = sessionStorage.getItem('homeData');
+      if (cached) return JSON.parse(cached);
+    } catch (_) {}
+    return null;
+  };
+  const cached = getCached();
+  const [hotels, setHotels] = useState(Array.isArray(cached?.hotels) ? cached.hotels : []);
+  const [sites, setSites] = useState(Array.isArray(cached?.sites) ? cached.sites : []);
+  const [guides, setGuides] = useState(Array.isArray(cached?.guides) ? cached.guides : []);
+  const [transports, setTransports] = useState(Array.isArray(cached?.transports) ? cached.transports : []);
+  const [stats, setStats] = useState(cached ? { hotels: cached.hotels?.length || 0, guides: cached.guides?.length || 0, sites: cached.sites?.length || 0 } : { hotels: 0, guides: 0, sites: 0 });
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => { document.title = "Visit Bahir Dar – Discover Ethiopia's Lake City"; }, []);
 
   useEffect(() => {
-    const cached = sessionStorage.getItem('homeData');
-    if (cached) {
-      const { hotels: h, guides: g, sites: s, transports: tr } = JSON.parse(cached);
-      setHotels(h); setGuides(g); setSites(s); setTransports(tr);
-      setStats({ hotels: h.length, guides: g.length, sites: s.length });
-      setLoading(false);
-      return;
-    }
+    if (cached) return;
     Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
       .then(([h, g, s, tr]) => {
         // Handle both paginated and direct array responses
