@@ -19,19 +19,24 @@ export default function Home() {
   useEffect(() => {
     const cached = sessionStorage.getItem('homeData');
     if (cached) {
-      const { hotels: h, guides: g, sites: s, transports: tr } = JSON.parse(cached);
-      setHotels(h); setGuides(g); setSites(s); setTransports(tr);
-      setStats({ hotels: h.length, guides: g.length, sites: s.length });
-      setLoading(false);
-      return;
+      try {
+        const { hotels: h, guides: g, sites: s, transports: tr } = JSON.parse(cached);
+        if (Array.isArray(h) && Array.isArray(g) && Array.isArray(s) && Array.isArray(tr)) {
+          setHotels(h); setGuides(g); setSites(s); setTransports(tr);
+          setStats({ hotels: h.length, guides: g.length, sites: s.length });
+          setLoading(false);
+          return;
+        }
+      } catch (_) {}
+      sessionStorage.removeItem('homeData');
     }
     Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
       .then(([h, g, s, tr]) => {
         // Handle both paginated and direct array responses
-        const hotelsData = h.data?.data || h.data || [];
-        const guidesData = g.data?.data || g.data || [];
-        const sitesData = s.data?.data || s.data || [];
-        const transportsData = tr.data?.data || tr.data || [];
+        const hotelsData = Array.isArray(h.data?.data) ? h.data.data : Array.isArray(h.data) ? h.data : [];
+        const guidesData = Array.isArray(g.data?.data) ? g.data.data : Array.isArray(g.data) ? g.data : [];
+        const sitesData = Array.isArray(s.data?.data) ? s.data.data : Array.isArray(s.data) ? s.data : [];
+        const transportsData = Array.isArray(tr.data?.data) ? tr.data.data : Array.isArray(tr.data) ? tr.data : [];
         
         setStats({ hotels: hotelsData.length, guides: guidesData.length, sites: sitesData.length });
         setHotels(hotelsData); setGuides(guidesData); setSites(sitesData); setTransports(transportsData);
