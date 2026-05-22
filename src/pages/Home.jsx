@@ -11,7 +11,7 @@ export default function Home() {
     try {
       const cached = sessionStorage.getItem('homeData');
       if (cached) return JSON.parse(cached);
-    } catch (_) {}
+    } catch (e) { console.warn('Cache read failed', e); }
     return null;
   };
   const cached = getCached();
@@ -25,7 +25,8 @@ export default function Home() {
   useEffect(() => { document.title = "Visit Bahir Dar – Discover Ethiopia's Lake City"; }, []);
 
   useEffect(() => {
-    if (cached) return;
+    const hasCached = getCached();
+    if (hasCached) return;
     Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
       .then(([h, g, s, tr]) => {
         // Handle both paginated and direct array responses
