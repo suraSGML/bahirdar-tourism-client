@@ -10,7 +10,13 @@ export default function Home() {
   const getCached = () => {
     try {
       const cached = sessionStorage.getItem('homeData');
-      if (cached) return JSON.parse(cached);
+      if (!cached) return null;
+      const parsed = JSON.parse(cached);
+      if (!Array.isArray(parsed?.hotels) || !Array.isArray(parsed?.guides) || !Array.isArray(parsed?.sites) || !Array.isArray(parsed?.transports)) {
+        sessionStorage.removeItem('homeData');
+        return null;
+      }
+      return parsed;
     } catch (e) { console.warn('Cache read failed', e); }
     return null;
   };
