@@ -19,11 +19,11 @@ export default function Home() {
   useEffect(() => {
     Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
       .then(([h, g, s, tr]) => {
-        // Handle both paginated and direct array responses
-        const hotelsData = h.data?.data || h.data || [];
-        const guidesData = g.data?.data || g.data || [];
-        const sitesData = s.data?.data || s.data || [];
-        const transportsData = tr.data?.data || tr.data || [];
+        const toArray = (val) => Array.isArray(val) ? val : [];
+        const hotelsData = toArray(h.data?.data ?? h.data);
+        const guidesData = toArray(g.data?.data ?? g.data);
+        const sitesData = toArray(s.data?.data ?? s.data);
+        const transportsData = toArray(tr.data?.data ?? tr.data);
         
         setStats({ hotels: hotelsData.length, guides: guidesData.length, sites: sitesData.length });
         setHotels(hotelsData); setGuides(guidesData); setSites(sitesData); setTransports(transportsData);
