@@ -17,22 +17,25 @@ export default function Home() {
   useEffect(() => { document.title = "Visit Bahir Dar – Discover Ethiopia's Lake City"; }, []);
 
   useEffect(() => {
-    Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
-      .then(([h, g, s, tr]) => {
-        const toArray = (val) => Array.isArray(val) ? val : [];
-        const hotelsData = toArray(h.data?.data ?? h.data);
-        const guidesData = toArray(g.data);
-        const sitesData = toArray(s.data);
-        const transportsData = toArray(tr.data);
-        
-        setStats({ hotels: hotelsData.length, guides: guidesData.length, sites: sitesData.length });
-        setHotels(hotelsData); setGuides(guidesData); setSites(sitesData); setTransports(transportsData);
-      })
-      .catch(err => {
-        console.error('Failed to load home data:', err);
-        setLoading(false);
-      })
-      .finally(() => setLoading(false));
+    const fetchData = () => {
+      Promise.all([API.get('/hotels?limit=6'), API.get('/guides?limit=8'), API.get('/sites?limit=8'), API.get('/transport?limit=20')])
+        .then(([h, g, s, tr]) => {
+          const toArray = (val) => Array.isArray(val) ? val : [];
+          const hotelsData = toArray(h.data?.data ?? h.data);
+          const guidesData = toArray(g.data);
+          const sitesData = toArray(s.data);
+          const transportsData = toArray(tr.data);
+          setStats({ hotels: hotelsData.length, guides: guidesData.length, sites: sitesData.length });
+          setHotels(hotelsData); setGuides(guidesData); setSites(sitesData); setTransports(transportsData);
+        })
+        .catch(err => {
+          console.error('Failed to load home data:', err);
+          // Retry once after 3 seconds (Render cold start)
+          setTimeout(fetchData, 3000);
+        })
+        .finally(() => setLoading(false));
+    };
+    fetchData();
   }, []);
 
   if (loading) return (
